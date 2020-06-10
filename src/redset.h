@@ -28,6 +28,27 @@ extern "C" {
 #define REDSET_COPY_XOR     (3)
 #define REDSET_COPY_RS      (4)
 
+/* names of user settable config parameters */
+#define REDSET_KEY_CONFIG_ENABLED   "ENABLED"
+#define REDSET_KEY_CONFIG_INTERVAL  "INTERVAL"
+#define REDSET_KEY_CONFIG_OUTPUT    "OUTPUT"
+#define REDSET_KEY_CONFIG_STORE     "STORE"
+#define REDSET_KEY_CONFIG_DIRECTORY "DIR"
+#define REDSET_KEY_CONFIG_TYPE      "TYPE"
+#define REDSET_KEY_CONFIG_SET_SIZE  "SETSIZE"
+#define REDSET_KEY_CONFIG_GROUP      "GROUP"
+#define REDSET_KEY_CONFIG_GROUPS     "GROUPS"
+#define REDSET_KEY_CONFIG_GROUP_ID   "GROUP"
+#define REDSET_KEY_CONFIG_GROUP_SIZE "RANKS"
+#define REDSET_KEY_CONFIG_GROUP_RANK "RANK"
+#define REDSET_KEY_CONFIG_MPI_BUF_SIZE "MPI_BUF_SIZE"
+#define REDSET_KEY_CONFIG_DEBUG "DEBUG"
+
+#define REDSET_KEY_COPY_XOR_RANKS "RANKS"
+#define REDSET_KEY_COPY_XOR_GROUP "GROUP"
+#define REDSET_KEY_COPY_XOR_GROUP_RANK  "RANK"
+#define REDSET_KEY_COPY_XOR_GROUP_RANKS "RANKS"
+
 /********************************************************/
 /** \name Define redundancy descriptor structure */
 ///@{
@@ -44,6 +65,14 @@ int redset_init(void);
 
 /** shutdown library */
 int redset_finalize(void);
+
+/** parse confg kvtree into global paramter variables
+ * returns REDSET_SUCCESS if all configuration parameters passed were
+ * understood and !REDSET_SUCCESS otherwise.
+ */
+int redset_config(
+  const kvtree *config /** < [IN] - options to be set */
+);
 
 /** create a new redundancy set descriptor */
 int redset_create(

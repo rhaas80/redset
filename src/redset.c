@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,6 +26,8 @@
 
 #define REDSET_HOSTNAME (255)
 
+static int redset_set_size = 8;
+
 int redset_init(void)
 {
   /* read our hostname */
@@ -50,6 +53,81 @@ int redset_finalize(void)
   return REDSET_SUCCESS;
 }
 
+int redset_config(const kvtree *config)
+{
+  int retval = REDSET_SUCCESS;
+
+  static int configured = 0;
+  static const char* known_options[] = {
+    REDSET_KEY_CONFIG_DEBUG,
+    REDSET_KEY_CONFIG_SET_SIZE,
+    REDSET_KEY_CONFIG_MPI_BUF_SIZE,
+    NULL
+  };
+
+  if (!configured)
+  {
+    if (config != NULL)
+    {
+      const kvtree_elem* elem;
+
+      /* read out all options we know about */
+      kvtree_util_get_int(config, REDSET_KEY_CONFIG_DEBUG,
+                          &redset_debug);
+      kvtree_util_get_int(config, REDSET_KEY_CONFIG_SET_SIZE,
+                          &redset_set_size);
+      kvtree_util_get_int(config, REDSET_KEY_CONFIG_MPI_BUF_SIZE,
+                          &redset_mpi_buf_size);
+
+      /* report all unknown options (typos?) */
+      for (elem = kvtree_elem_first(config); elem ;
+           elem = kvtree_elem_next(elem))
+      {
+        /* must be only one level deep, ie plain kev = value */
+        {
+          const kvtree* elem_hash = kvtree_elem_hash(elem);
+          assert(kvtree_size(elem_hash) == 1);
+          {
+            const kvtree* kvtree_first_elem_hash =
+              kvtree_elem_hash(kvtree_elem_first(elem_hash));
+            assert(kvtree_size(kvtree_first_elem_hash) == 0);
+          }
+        }
+        /* check against known options */
+        {
+          const char** opt;
+          int found = 0;
+          for (opt = known_options; opt; opt++)
+          {
+            if (strcmp(*opt, kvtree_elem_key(elem)) == 0)
+            {
+              found = 1;
+              break;
+            }
+          }
+          if (!found)
+          {
+            fprintf(stderr,
+                    "Unknown configuration parameter '%s' with value '%s'\n",
+                    kvtree_elem_key(elem),
+                    kvtree_elem_key(kvtree_elem_first(kvtree_elem_hash(elem))));
+            retval = !REDSET_SUCCESS;
+          }
+        }
+      }
+    }
+
+    /* only accept configuration options once */
+    configured = 1;
+  }
+  else
+  {
+    fprintf(stderr, "Already configured\n");
+    retval = !REDSET_SUCCESS;
+  }
+
+  return retval;
+}
 /* given a comm as input, find the left and right partner
  * ranks and hostnames */
 int redset_set_partners(
@@ -441,7 +519,7 @@ int redset_create(
   const char* group_name,
   redset* dvp)
 {
-  int set_size = 8;
+  int set_size = redset_set_size;
 
   int k = 1;
   if (type == REDSET_COPY_RS) {
@@ -458,7 +536,7 @@ int redset_create_single(
   const char* group_name,
   redset* dvp)
 {
-  int set_size = 8;
+  int set_size = redset_set_size;
   int k = 1;
   int rc = redset_create_base(REDSET_COPY_SINGLE, comm, group_name, set_size, k, dvp);
   return rc;
