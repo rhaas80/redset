@@ -47,6 +47,7 @@ int redset_finalize();
 /** create a new redundancy set descriptor */
 int redset_create(
   int type,          /**< [IN]  - redundancy encoding type: one of REDSET_COPY values */
+  int size,          /**< [IN]  - size of redundancy set, set to 0 to use default */
   MPI_Comm comm,     /**< [IN]  - process group participating in set */
   const char* group, /**< [IN]  - string specifying procs in the same failure group */
   redset* d          /**< [OUT] - output redundancy descriptor */

@@ -499,6 +499,7 @@ static int redset_type_int_from_str(const char* value, int* outtype)
  * this function is collective */
 int redset_create(
   int type,
+  int set_size,
   MPI_Comm comm,
   const char* group_name,
   redset* dvp)
@@ -509,13 +510,16 @@ int redset_create(
   /* set caller's pointer to record address of redset structure */
   *dvp = (void*) d;
 
-  int SET_SIZE = 8;
+  const int SET_SIZE = 8;
 
   /* initialize the descriptor */
   redset_initialize(d);
 
   /* set xor set size */
-  int set_size = SET_SIZE;
+  if (set_size == 0)
+  {
+    set_size = SET_SIZE;
+  }
 
   /* assume it's enabled, we may turn this bit off later */
   d->enabled = 1;

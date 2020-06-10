@@ -228,7 +228,7 @@ void test_sequence(int copymode, const char* group, int filecount, const char** 
   create_files(filecount, filelist);
 
   redset d;
-  redset_create(copymode, MPI_COMM_WORLD, group, &d);
+  redset_create(copymode, 0, MPI_COMM_WORLD, group, &d);
 
   test_apply(copymode, filecount, filelist, prefix, d, MPI_COMM_WORLD);
 
