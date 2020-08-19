@@ -26,7 +26,8 @@
 
 #define REDSET_HOSTNAME (255)
 
-static int redset_set_size = 8;
+/** default set size for redset to use */
+int redset_set_size = 8;
 
 int redset_init(void)
 {

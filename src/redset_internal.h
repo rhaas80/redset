@@ -65,6 +65,9 @@ typedef struct {
   const char** files;
 } redset_list;
 
+/** default set size for redset to use */
+extern int redset_set_size;
+
 int redset_set_partners(
   MPI_Comm parent_comm, MPI_Comm comm, int dist,
   int* lhs_rank, int* lhs_rank_world, char** lhs_hostname,
