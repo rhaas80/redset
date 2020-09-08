@@ -71,14 +71,24 @@ int redset_config(const kvtree *config)
     if (config != NULL)
     {
       const kvtree_elem* elem;
+      unsigned long ul;
 
       /* read out all options we know about */
       kvtree_util_get_int(config, REDSET_KEY_CONFIG_DEBUG,
                           &redset_debug);
       kvtree_util_get_int(config, REDSET_KEY_CONFIG_SET_SIZE,
                           &redset_set_size);
-      kvtree_util_get_int(config, REDSET_KEY_CONFIG_MPI_BUF_SIZE,
-                          &redset_mpi_buf_size);
+      if (kvtree_util_get_bytecount(config, REDSET_KEY_CONFIG_MPI_BUF_SIZE,
+                                    &ul) == KVTREE_SUCCESS) {
+        redset_mpi_buf_size = (int) ul;
+        if (redset_mpi_buf_size != ul) {
+          char *value;
+          kvtree_util_get_str(config, REDSET_KEY_CONFIG_MPI_BUF_SIZE, &value);
+          fprintf(stderr, "Value %s passed for %s exceeds int range\n",
+                  value, REDSET_KEY_CONFIG_MPI_BUF_SIZE);
+          retval = REDSET_FAILURE;
+        }
+      }
 
       /* report all unknown options (typos?) */
       for (elem = kvtree_elem_first(config); elem ;
