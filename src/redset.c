@@ -66,79 +66,74 @@ int redset_config(const kvtree *config)
     NULL
   };
 
-  if (!configured)
-  {
-    if (config != NULL)
-    {
-      const kvtree_elem* elem;
-      unsigned long ul;
-
+  if (! configured) {
+    if (config != NULL) {
       /* read out all options we know about */
-      kvtree_util_get_int(config, REDSET_KEY_CONFIG_DEBUG,
-                          &redset_debug);
-      kvtree_util_get_int(config, REDSET_KEY_CONFIG_SET_SIZE,
-                          &redset_set_size);
-      if (kvtree_util_get_bytecount(config, REDSET_KEY_CONFIG_MPI_BUF_SIZE,
-                                    &ul) == KVTREE_SUCCESS) {
+      kvtree_util_get_int(config,
+        REDSET_KEY_CONFIG_DEBUG, &redset_debug);
+
+      kvtree_util_get_int(config,
+        REDSET_KEY_CONFIG_SET_SIZE, &redset_set_size);
+
+      unsigned long ul;
+      if (kvtree_util_get_bytecount(config,
+        REDSET_KEY_CONFIG_MPI_BUF_SIZE, &ul) == KVTREE_SUCCESS)
+      {
         redset_mpi_buf_size = (int) ul;
         if (redset_mpi_buf_size != ul) {
           char *value;
           kvtree_util_get_str(config, REDSET_KEY_CONFIG_MPI_BUF_SIZE, &value);
-          fprintf(stderr, "Value %s passed for %s exceeds int range\n",
-                  value, REDSET_KEY_CONFIG_MPI_BUF_SIZE);
+          fprintf(stderr, "Value '%s' passed for %s exceeds int range\n",
+            value, REDSET_KEY_CONFIG_MPI_BUF_SIZE
+          );
           retval = REDSET_FAILURE;
         }
       }
 
       /* report all unknown options (typos?) */
-      for (elem = kvtree_elem_first(config); elem ;
+      const kvtree_elem* elem;
+      for (elem = kvtree_elem_first(config);
+           elem != NULL;
            elem = kvtree_elem_next(elem))
       {
         /* must be only one level deep, ie plain kev = value */
-        {
-          const kvtree* elem_hash = kvtree_elem_hash(elem);
-          assert(kvtree_size(elem_hash) == 1);
-          {
-            const kvtree* kvtree_first_elem_hash =
-              kvtree_elem_hash(kvtree_elem_first(elem_hash));
-            assert(kvtree_size(kvtree_first_elem_hash) == 0);
+        const kvtree* elem_hash = kvtree_elem_hash(elem);
+        assert(kvtree_size(elem_hash) == 1);
+
+        const kvtree* kvtree_first_elem_hash =
+          kvtree_elem_hash(kvtree_elem_first(elem_hash));
+        assert(kvtree_size(kvtree_first_elem_hash) == 0);
+
+        /* check against known options */
+        const char** opt;
+        int found = 0;
+        for (opt = known_options; opt; opt++) {
+          if (strcmp(*opt, kvtree_elem_key(elem)) == 0) {
+            found = 1;
+            break;
           }
         }
-        /* check against known options */
-        {
-          const char** opt;
-          int found = 0;
-          for (opt = known_options; opt; opt++)
-          {
-            if (strcmp(*opt, kvtree_elem_key(elem)) == 0)
-            {
-              found = 1;
-              break;
-            }
-          }
-          if (!found)
-          {
-            fprintf(stderr,
-                    "Unknown configuration parameter '%s' with value '%s'\n",
-                    kvtree_elem_key(elem),
-                    kvtree_elem_key(kvtree_elem_first(kvtree_elem_hash(elem))));
-            retval = !REDSET_SUCCESS;
-          }
+        if (! found) {
+          fprintf(stderr,
+            "Unknown configuration parameter '%s' with value '%s'\n",
+            kvtree_elem_key(elem),
+            kvtree_elem_key(kvtree_elem_first(kvtree_elem_hash(elem)))
+          );
+          retval = !REDSET_SUCCESS;
         }
       }
     }
 
     /* only accept configuration options once */
     configured = 1;
-  }
-  else
-  {
+  } else {
     fprintf(stderr, "Already configured\n");
     retval = !REDSET_SUCCESS;
   }
 
   return retval;
 }
+
 /* given a comm as input, find the left and right partner
  * ranks and hostnames */
 int redset_set_partners(
