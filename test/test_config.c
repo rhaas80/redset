@@ -45,17 +45,15 @@ main(int argc, char *argv[]) {
     }
 
     printf("Configuring redset...\n");
-    rc = redset_config(redset_config_values);
-    if (rc != REDSET_SUCCESS) {
-        printf("redset_config() failed (error %d)\n", rc);
-        return rc;
+    if (redset_config(redset_config_values) == NULL) {
+        printf("redset_config() failed\n");
+        return EXIT_FAILURE;
     }
 
     printf("Configuring redset a second time (this should fail)...\n");
-    rc = redset_config(redset_config_values);
-    if (rc == REDSET_SUCCESS) {
-        printf("redset_config() succeeded unexpectedly (error %d)\n", rc);
-        return rc;
+    if (redset_config(redset_config_values) != NULL) {
+        printf("redset_config() succeeded unexpectedly\n");
+        return EXIT_FAILURE;
     }
 
     if (redset_debug != !old_redset_debug) {
