@@ -2,7 +2,6 @@
 #define REDSET_H
 
 #include "mpi.h"
-#include "kvtree.h"
 
 /** \defgroup redset Redset
  *  \brief Redundancy encoding file sets
@@ -70,6 +69,7 @@ int redset_finalize(void);
  * returns REDSET_SUCCESS if all configuration parameters passed were
  * understood and !REDSET_SUCCESS otherwise.
  */
+typedef struct kvtree_struct kvtree;
 int redset_config(
   const kvtree *config /** < [IN] - options to be set */
 );
