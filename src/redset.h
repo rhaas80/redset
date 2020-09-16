@@ -65,12 +65,20 @@ int redset_init(void);
 /** shutdown library */
 int redset_finalize(void);
 
-/** parse confg kvtree into global paramter variables
- * returns REDSET_SUCCESS if all configuration parameters passed were
- * understood and !REDSET_SUCCESS otherwise.
+/**
+ * Get/set redset configuration values.
+ *
+ * config: The new configuration.  Global variables are in top level of
+ *         the tree, and per-ID values are subtrees.  If config=NULL,
+ *         then return a kvtree with all the configuration values (globals
+ *         and all per-ID trees).
+ *
+ * Return value: If config != NULL, then return config on success.  If
+ *               config=NULL (you're querying the config) then return
+ *               a new kvtree on success.  Return NULL on any failures.
  */
 typedef struct kvtree_struct kvtree;
-int redset_config(
+kvtree* redset_config(
   const kvtree *config /** < [IN] - options to be set */
 );
 

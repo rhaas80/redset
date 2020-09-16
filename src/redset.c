@@ -54,9 +54,9 @@ int redset_finalize(void)
   return REDSET_SUCCESS;
 }
 
-int redset_config(const kvtree *config)
+kvtree* redset_config(const kvtree *config)
 {
-  int retval = REDSET_SUCCESS;
+  kvtree* retval = (kvtree*)config;
 
   static int configured = 0;
   static const char* known_options[] = {
@@ -65,6 +65,11 @@ int redset_config(const kvtree *config)
     REDSET_KEY_CONFIG_MPI_BUF_SIZE,
     NULL
   };
+
+  /* TODO: implement getting configuration options back */
+  if (config == NULL) {
+    return NULL;
+  }
 
   if (! configured) {
     if (config != NULL) {
@@ -86,7 +91,7 @@ int redset_config(const kvtree *config)
           fprintf(stderr, "Value '%s' passed for %s exceeds int range\n",
             value, REDSET_KEY_CONFIG_MPI_BUF_SIZE
           );
-          retval = REDSET_FAILURE;
+          retval = NULL;
         }
       }
 
@@ -119,7 +124,7 @@ int redset_config(const kvtree *config)
             kvtree_elem_key(elem),
             kvtree_elem_key(kvtree_elem_first(kvtree_elem_hash(elem)))
           );
-          retval = !REDSET_SUCCESS;
+          retval = NULL;
         }
       }
     }
@@ -128,7 +133,7 @@ int redset_config(const kvtree *config)
     configured = 1;
   } else {
     fprintf(stderr, "Already configured\n");
-    retval = !REDSET_SUCCESS;
+    retval = NULL;
   }
 
   return retval;
