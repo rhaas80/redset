@@ -9,7 +9,7 @@ INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
 
 ADD_EXECUTABLE(redset_test test_redset.c)
 TARGET_LINK_LIBRARIES(redset_test ${SPATH_EXTERNAL_LIBS} redset)
-ADD_TEST(NAME redset_test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 -N2 ./redset_test)
+ADD_TEST(NAME redset_test COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 -N 2 ./redset_test)
 
 ADD_EXECUTABLE(test_config test_config.c)
 TARGET_LINK_LIBRARIES(test_config ${SPATH_EXTERNAL_LIBS} redset)
