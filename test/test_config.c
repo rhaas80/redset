@@ -37,6 +37,17 @@ main(int argc, char *argv[]) {
         printf("kvtree_util_set_int failed (error %d)\n", rc);
         return rc;
     }
+
+    printf("Configuring redset (first set of options)...\n");
+    if (redset_config(redset_config_values) == NULL) {
+        printf("redset_config() failed\n");
+        return EXIT_FAILURE;
+    }
+
+    /* configure remaining options */
+    kvtree_delete(&redset_config_values);
+    redset_config_values = kvtree_new();
+
     rc = kvtree_util_set_int(redset_config_values, REDSET_KEY_CONFIG_MPI_BUF_SIZE,
                              old_redset_mpi_buf_size + 1);
     if (rc != KVTREE_SUCCESS) {
@@ -44,15 +55,9 @@ main(int argc, char *argv[]) {
         return rc;
     }
 
-    printf("Configuring redset...\n");
+    printf("Configuring redset (second set of options)...\n");
     if (redset_config(redset_config_values) == NULL) {
         printf("redset_config() failed\n");
-        return EXIT_FAILURE;
-    }
-
-    printf("Configuring redset a second time (this should fail)...\n");
-    if (redset_config(redset_config_values) != NULL) {
-        printf("redset_config() succeeded unexpectedly\n");
         return EXIT_FAILURE;
     }
 
